@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Wealth Ladder — Interactive Summary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EDF1EA;
+  --paper-2:#E3EADF;
+  --ink:#12362A;
+  --ink-soft:#3E5C4F;
+  --brass:#A8842C;
+  --brass-soft:#C7A758;
+  --coral:#B4472F;
+  --white:#FBFCFA;
+  --line:rgba(18,54,42,.18);
+  --shadow:0 10px 30px rgba(18,54,42,.10);
+  --radius:14px;
+  --font-display:"Fraunces",Georgia,serif;
+  --font-body:"Public Sans",-apple-system,Segoe UI,sans-serif;
+  --font-mono:"IBM Plex Mono",Menlo,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
+body{
+  font-family:var(--font-body);
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.6;
+  background-image:
+    radial-gradient(circle at 15% 10%, rgba(168,132,44,.06), transparent 40%),
+    radial-gradient(circle at 85% 90%, rgba(18,54,42,.05), transparent 45%);
+}
+::selection{background:var(--brass-soft);color:var(--ink)}
+
+/* ---------- NAV ---------- */
+nav{
+  position:sticky;top:0;z-index:50;
+  background:rgba(237,241,234,.92);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:6px;padding:10px 20px;overflow-x:auto;scrollbar-width:none}
+.nav-inner::-webkit-scrollbar{display:none}
+.nav-brand{font-family:var(--font-display);font-weight:900;font-size:15px;margin-right:auto;white-space:nowrap}
+.nav-brand span{color:var(--brass)}
+nav a{
+  font-size:12.5px;font-weight:600;color:var(--ink-soft);text-decoration:none;
+  padding:6px 11px;border-radius:99px;white-space:nowrap;transition:background .2s,color .2s;
+}
+nav a:hover,nav a:focus-visible{background:var(--ink);color:var(--white);outline:none}
+
+/* ---------- HERO ---------- */
+header{max-width:1100px;margin:0 auto;padding:64px 20px 30px;text-align:center}
+.eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--brass);margin-bottom:16px}
+h1{font-family:var(--font-display);font-weight:900;font-size:clamp(40px,7vw,78px);line-height:1.02;letter-spacing:-.01em}
+h1 em{font-style:italic;color:var(--brass)}
+.hero-sub{max-width:640px;margin:22px auto 0;font-size:17px;color:var(--ink-soft)}
+.hero-meta{display:flex;justify-content:center;gap:26px;flex-wrap:wrap;margin-top:26px;font-family:var(--font-mono);font-size:12.5px;color:var(--ink-soft)}
+.hero-meta b{color:var(--ink)}
+.disclaimer{max-width:640px;margin:18px auto 0;font-size:12px;color:var(--ink-soft);opacity:.85}
+
+/* ---------- FINDER ---------- */
+.finder{
+  max-width:760px;margin:36px auto 0;background:var(--white);
+  border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:26px 28px;text-align:left;
+}
+.finder label{font-weight:700;font-size:14px;display:block;margin-bottom:8px}
+.finder-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.finder input{
+  flex:1;min-width:200px;font-family:var(--font-mono);font-size:18px;padding:12px 14px;
+  border:2px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);
+}
+.finder input:focus{outline:none;border-color:var(--brass)}
+.finder-result{margin-top:16px;padding:16px;border-radius:10px;background:var(--paper-2);display:none}
+.finder-result.show{display:block}
+.finder-result .fr-level{font-family:var(--font-display);font-size:26px;font-weight:900}
+.finder-result .fr-level span{color:var(--brass)}
+.finder-result p{font-size:14px;color:var(--ink-soft);margin-top:6px}
+.finder-result .fr-stats{display:flex;gap:20px;flex-wrap:wrap;margin-top:12px;font-family:var(--font-mono);font-size:12.5px}
+.finder-result .fr-stats div b{display:block;font-size:16px;color:var(--ink)}
+
+/* ---------- SECTIONS ---------- */
+section{max-width:1100px;margin:0 auto;padding:70px 20px 10px}
+.sec-head{margin-bottom:30px}
+.sec-head .eyebrow{margin-bottom:8px}
+h2{font-family:var(--font-display);font-weight:900;font-size:clamp(28px,4vw,44px);line-height:1.1}
+.sec-head p{max-width:640px;color:var(--ink-soft);margin-top:10px;font-size:15.5px}
+
+/* ---------- LADDER ---------- */
+.ladder-wrap{display:grid;grid-template-columns:330px 1fr;gap:28px;align-items:start}
+@media(max-width:820px){.ladder-wrap{grid-template-columns:1fr}}
+.ladder{display:flex;flex-direction:column-reverse;gap:8px}
+.rung{
+  display:flex;align-items:center;gap:14px;width:100%;text-align:left;
+  background:var(--white);border:1px solid var(--line);border-radius:12px;
+  padding:13px 16px;cursor:pointer;font-family:var(--font-body);
+  transition:transform .18s,box-shadow .18s,border-color .18s;
+}
+.rung:hover{transform:translateX(6px)}
+.rung:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
+.rung .r-num{
+  font-family:var(--font-display);font-weight:900;font-size:22px;width:34px;flex-shrink:0;
+  color:var(--brass);
+}
+.rung .r-name{font-weight:700;font-size:14.5px;line-height:1.25}
+.rung .r-range{font-family:var(--font-mono);font-size:11.5px;color:var(--ink-soft)}
+.rung.active{border-color:var(--ink);box-shadow:var(--shadow);background:var(--ink);color:var(--white)}
+.rung.active .r-range{color:var(--brass-soft)}
+.rung.active .r-num{color:var(--brass-soft)}
+.rung.you::after{content:"YOU";font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;background:var(--brass);color:var(--white);padding:3px 8px;border-radius:99px;margin-left:auto}
+
+.level-card{
+  background:var(--white);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:30px 32px;position:sticky;top:70px;
+}
+.lc-top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:baseline;border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:18px}
+.lc-title{font-family:var(--font-display);font-weight:900;font-size:clamp(24px,3vw,34px)}
+.lc-title span{color:var(--brass)}
+.lc-range{font-family:var(--font-mono);font-size:14px;color:var(--ink-soft)}
+.lc-mantra{
+  font-family:var(--font-display);font-style:italic;font-size:19px;color:var(--brass);
+  margin-bottom:18px;
+}
+.lc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+.lc-stat{background:var(--paper-2);border-radius:10px;padding:12px 14px}
+.lc-stat .k{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+.lc-stat .v{font-family:var(--font-display);font-weight:700;font-size:19px;margin-top:2px}
+.lc-body h4{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass);margin:18px 0 6px}
+.lc-body p,.lc-body li{font-size:14.5px;color:var(--ink-soft)}
+.lc-body ul{padding-left:20px}
+.lc-body li{margin-bottom:5px}
+.lc-body li::marker{color:var(--brass)}
+
+/* ---------- RULES ---------- */
+.rules-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:820px){.rules-grid{grid-template-columns:1fr}}
+.rule-card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px}
+.rule-card .big{font-family:var(--font-display);font-weight:900;font-size:44px;color:var(--brass);line-height:1}
+.rule-card h3{font-family:var(--font-display);font-size:23px;font-weight:700;margin:8px 0 10px}
+.rule-card p{font-size:14.5px;color:var(--ink-soft)}
+.rule-live{margin-top:18px;background:var(--paper-2);border-radius:10px;padding:16px;font-size:14px}
+.rule-live b{font-family:var(--font-mono);font-size:20px;color:var(--ink);display:block;margin-top:4px}
+.rule-live .hint{font-size:12px;color:var(--ink-soft)}
+
+/* ---------- TABS / ENGINES ---------- */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.tab-btn{
+  font-family:var(--font-body);font-weight:600;font-size:13.5px;padding:9px 18px;border-radius:99px;
+  border:1px solid var(--line);background:var(--white);color:var(--ink-soft);cursor:pointer;transition:all .18s;
+}
+.tab-btn:hover{border-color:var(--ink)}
+.tab-btn:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
+.tab-btn.active{background:var(--ink);color:var(--white);border-color:var(--ink)}
+.tab-panel{display:none;background:var(--white);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px 30px}
+.tab-panel.active{display:block}
+.tab-panel h3{font-family:var(--font-display);font-size:24px;font-weight:900;margin-bottom:8px}
+.tab-panel h3 span{color:var(--brass)}
+.tab-panel p{font-size:14.5px;color:var(--ink-soft);max-width:720px}
+.tab-panel ul{padding-left:20px;margin-top:12px}
+.tab-panel li{font-size:14.5px;color:var(--ink-soft);margin-bottom:7px}
+.tab-panel li::marker{color:var(--brass)}
+.tab-panel li b{color:var(--ink)}
+
+/* ---------- TABLES ---------- */
+.table-wrap{overflow-x:auto;background:var(--white);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:6px}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:520px}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line)}
+th{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);background:var(--paper-2)}
+tbody tr:last-child td{border-bottom:none}
+td.num{font-family:var(--font-mono)}
+td.hi{background:rgba(168,132,44,.14);font-weight:700}
+td.stay{background:rgba(18,54,42,.07);font-weight:700}
+.tbl-note{font-size:12px;color:var(--ink-soft);margin-top:10px}
+
+/* ---------- LEVERAGE ---------- */
+.lev-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+.lev-card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);transition:transform .18s}
+.lev-card:hover{transform:translateY(-4px)}
+.lev-card .lev-ico{font-size:28px}
+.lev-card h3{font-family:var(--font-display);font-size:21px;font-weight:700;margin:8px 0 2px}
+.lev-card .lev-lv{font-family:var(--font-mono);font-size:11.5px;color:var(--brass);letter-spacing:.08em;margin-bottom:10px}
+.lev-card p{font-size:13.5px;color:var(--ink-soft)}
+.lev-card .pros{color:var(--ink);font-weight:600;margin-top:10px;font-size:13px}
+.lev-card .cons{color:var(--coral);font-weight:600;margin-top:6px;font-size:13px}
+
+/* ---------- HAPPINESS ---------- */
+.hap-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px;margin-top:8px}
+.hap-card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
+.hap-card h4{font-family:var(--font-display);font-size:18px;font-weight:700;margin-bottom:6px}
+.hap-card p{font-size:13.5px;color:var(--ink-soft)}
+.verdict{
+  background:var(--ink);color:var(--white);border-radius:var(--radius);padding:30px 32px;margin:26px 0 10px;
+}
+.verdict h3{font-family:var(--font-display);font-size:22px;font-weight:700;margin-bottom:14px;color:var(--brass-soft)}
+.verdict-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.verdict-row div{background:rgba(251,252,250,.07);border-radius:10px;padding:16px}
+.verdict-row b{display:block;font-size:15px;margin-bottom:4px}
+.verdict-row p{font-size:13.5px;color:rgba(251,252,250,.75)}
+
+/* ---------- CHECKLIST ---------- */
+.check-wrap{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px 30px}
+.check-group{margin-bottom:8px;border-bottom:1px solid var(--line)}
+.check-group:last-child{border-bottom:none}
+.check-group summary{
+  cursor:pointer;list-style:none;display:flex;align-items:center;gap:12px;padding:14px 4px;
+  font-family:var(--font-display);font-weight:700;font-size:18px;
+}
+.check-group summary::-webkit-details-marker{display:none}
+.check-group summary .chev{margin-left:auto;transition:transform .2s;color:var(--brass)}
+.check-group[open] summary .chev{transform:rotate(90deg)}
+.check-group summary .cg-badge{font-family:var(--font-mono);font-size:11px;color:var(--white);background:var(--brass);border-radius:99px;padding:3px 9px}
+.check-item{display:flex;gap:12px;align-items:flex-start;padding:9px 4px 9px 14px;font-size:14px;color:var(--ink-soft)}
+.check-item input{margin-top:4px;accent-color:var(--brass);width:16px;height:16px;flex-shrink:0;cursor:pointer}
+.check-item label{cursor:pointer}
+.check-item input:checked+label{text-decoration:line-through;opacity:.55}
+.progress-bar{height:8px;background:var(--paper-2);border-radius:99px;overflow:hidden;margin-bottom:22px}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--brass),var(--brass-soft));transition:width .3s}
+.progress-label{font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);margin-bottom:8px}
+
+/* ---------- TAKEAWAYS ---------- */
+.take-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.take{background:var(--white);border-left:4px solid var(--brass);border-radius:0 12px 12px 0;padding:18px 20px;box-shadow:var(--shadow)}
+.take b{font-size:14.5px}
+.take p{font-size:13.5px;color:var(--ink-soft);margin-top:4px}
+
+/* ---------- FOOTER ---------- */
+footer{max-width:1100px;margin:70px auto 0;padding:34px 20px 44px;border-top:1px solid var(--line);text-align:center;font-size:13px;color:var(--ink-soft)}
+footer b{font-family:var(--font-display)}
+.mantra-strip{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:16px}
+.mantra-strip span{font-family:var(--font-mono);font-size:11px;border:1px solid var(--line);border-radius:99px;padding:5px 12px;background:var(--white)}
+.counter{display:inline-flex;align-items:center;gap:14px;margin-top:22px;padding:10px 18px;background:var(--white);border:1px solid var(--line);border-radius:99px;box-shadow:var(--shadow);font-family:var(--font-mono);font-size:12px;color:var(--ink-soft)}
+.counter .dot{width:7px;height:7px;border-radius:99px;background:var(--brass);flex-shrink:0}
+.counter b{font-family:var(--font-display);font-weight:900;font-size:20px;color:var(--ink);font-variant-numeric:tabular-nums}
+.counter .sep{width:1px;height:22px;background:var(--line)}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="nav-brand">The Wealth <span>Ladder</span></div>
+    <a href="#ladder">The 6 Levels</a>
+    <a href="#rules">Two Rules</a>
+    <a href="#engines">Spend · Earn · Invest</a>
+    <a href="#leverage">Leverage</a>
+    <a href="#data">The Data</a>
+    <a href="#happiness">Money &amp; Happiness</a>
+    <a href="#actions">Action Plan</a>
+    <a href="#takeaways">Takeaways</a>
+  </div>
+</nav>
+
+<header>
+  <div class="eyebrow">Interactive Book Summary · Nick Maggiulli · 2025</div>
+  <h1>Wealth isn't a line.<br>It's a <em>ladder.</em></h1>
+  <p class="hero-sub">Six wealth levels, each 10× the last — and each demanding a <b>different strategy</b> for spending, earning, and investing. The core thesis: effort alone doesn't determine results; <i>how and where</i> you apply it does. This summary distills the framework, the data, and the action steps.</p>
+  <div class="hero-meta">
+    <div><b>6</b> levels · ×10 apart</div>
+    <div><b>3</b> parts · 13 chapters</div>
+    <div>Data: Survey of Consumer Finances &amp; PSID (1984–2021)</div>
+  </div>
+
+  <div class="finder">
+    <label for="nw">🧭 Find your level — enter your net worth (assets − liabilities), in USD</label>
+    <div class="finder-row">
+      <input type="text" id="nw" inputmode="numeric" placeholder="e.g. 250000" aria-describedby="finder-out">
+    </div>
+    <div class="finder-result" id="finder-out" aria-live="polite">
+      <div class="fr-level" id="fr-level"></div>
+      <p id="fr-desc"></p>
+      <div class="fr-stats">
+        <div><span>Trivial spend / decision (0.01% Rule)</span><b id="fr-trivial"></b></div>
+        <div><span>Worthwhile income move (1% Rule)</span><b id="fr-one"></b></div>
+        <div><span>Median income at this level</span><b id="fr-inc"></b></div>
+      </div>
+    </div>
+    <p class="disclaimer" style="margin-top:12px;text-align:left">Tip: the author suggests spending by <b>liquid</b> net worth (exclude home equity &amp; retirement accounts) to stay conservative.</p>
+  </div>
+  <p class="disclaimer">A study companion in the reader's own words — not a substitute for the book, and not financial advice.</p>
+</header>
+
+<!-- ================= LADDER ================= -->
+<section id="ladder">
+  <div class="sec-head">
+    <div class="eyebrow">Part I + II · The Framework</div>
+    <h2>Climb the ladder — tap a rung</h2>
+    <p>Each level unlocks a new "freedom," carries its own risks, and requires a different playbook. Levels are 10× apart because that's roughly the wealth jump needed to change a lifestyle.</p>
+  </div>
+  <div class="ladder-wrap">
+    <div class="ladder" id="ladder-rungs" role="tablist" aria-label="Wealth levels"></div>
+    <div class="level-card" id="level-card" role="tabpanel"></div>
+  </div>
+</section>
+
+<!-- ================= RULES ================= -->
+<section id="rules">
+  <div class="sec-head">
+    <div class="eyebrow">The Two Operating Rules</div>
+    <h2>0.01% to spend, 1% to earn</h2>
+    <p>Two simple thresholds, scaled to your net worth, govern most day-to-day money decisions in the framework.</p>
+  </div>
+  <div class="rules-grid">
+    <div class="rule-card">
+      <div class="big">0.01%</div>
+      <h3>The Spending Rule</h3>
+      <p>Any single purchase under ~0.01% (1/10,000th) of your net worth is <b>trivial</b> — stop agonizing over it. Why it works: if your wealth is invested and grows ~0.01% a day (≈3.7%/yr real), you can spend that much daily <i>above your income</i> without shrinking your wealth. Corollary: <b>spend by your wealth, not your income</b> — income is fickle, wealth is discipline made visible.</p>
+      <div class="rule-live">
+        Your trivial-decision zone: <b id="live-trivial">enter net worth above ↑</b>
+        <div class="hint">Per single spending decision, above necessities.</div>
+      </div>
+    </div>
+    <div class="rule-card">
+      <div class="big">1%</div>
+      <h3>The Earning Rule</h3>
+      <p>An income opportunity is worth your time only if it can grow your net worth by <b>at least 1%</b>. As you climb, you must say <i>no</i> to bigger and bigger paydays — the $50 gig that made sense in Level 1 is a distraction in Level 3. Re-evaluate your opportunity costs constantly: "Yesterday's price is not today's price."</p>
+      <div class="rule-live">
+        Your minimum worthwhile move: <b id="live-one">enter net worth above ↑</b>
+        <div class="hint">L1: hourly work → L3: side hustles &amp; promotions → L4+: equity &amp; businesses.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ENGINES ================= -->
+<section id="engines">
+  <div class="sec-head">
+    <div class="eyebrow">Part I · Chapters 1–3</div>
+    <h2>The three engines</h2>
+    <p>Spending, earning, and investing each transform as you climb. Toggle through the chapter-by-chapter core ideas.</p>
+  </div>
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="spend">💳 Spending</button>
+    <button class="tab-btn" data-tab="earn">💼 Earning</button>
+    <button class="tab-btn" data-tab="invest">📈 Investing</button>
+  </div>
+
+  <div class="tab-panel active" id="tab-spend">
+    <h3>Spend by <span>wealth</span>, not income</h3>
+    <p>Consumption freedom rises in steps, not a straight line — someone with $500k lives almost identically to someone with $400k. Each level unlocks a spending category where price differences stop mattering:</p>
+    <ul>
+      <li><b>L1 — Paycheck-to-paycheck:</b> every dollar is felt ($0.01–$0.99 decisions are trivial).</li>
+      <li><b>L2 — Grocery freedom:</b> buy what you want at the store ($1–$9).</li>
+      <li><b>L3 — Restaurant freedom:</b> order what you want ($10–$99).</li>
+      <li><b>L4 — Travel freedom:</b> go when and where you want ($100–$999).</li>
+      <li><b>L5 — House freedom:</b> your dream home barely dents your finances ($1,000–$9,999).</li>
+      <li><b>L6 — Impact freedom:</b> change other people's lives at scale ($10,000+).</li>
+    </ul>
+    <ul>
+      <li><b>Income is fickle:</b> big income drops are more likely to be permanent for high earners — athletes go broke by spending on income, not wealth.</li>
+      <li><b>Use liquid net worth:</b> home equity and retirement accounts don't pay for dinner. A $1.1M net worth with only $250k liquid should spend like Level 3, not Level 4.</li>
+      <li><b>Balance, not frugality:</b> spending at your level won't guarantee a climb, but it makes a fall much less likely. "If you can't spend at your level, the most expensive thing you own is your ego."</li>
+    </ul>
+  </div>
+
+  <div class="tab-panel" id="tab-earn">
+    <h3>Income is the <span>foundation</span></h3>
+    <p>The income–wealth link is the strongest relationship in personal finance: the least wealthy quartile of high earners still holds ~4× more wealth than the wealthiest quartile of low earners. Your income today is the bedrock of your wealth tomorrow.</p>
+    <ul>
+      <li><b>What you do for money must change</b> as you get more of it (the Matsushita/Panasonic lesson): job → skills → career moves → business ownership.</li>
+      <li><b>Ladder of moves (1% Rule):</b> L1 hourly jobs ($10–$100) → L2 high-skilled work ($100–$1k) → L3 promotions &amp; side hustles ($1k–$10k) → L4 career pivots &amp; starting a business ($10k–$100k) → L5 scaling a business ($100k–$1M) → L6 building an enterprise ($1M+).</li>
+      <li><b>The Level 4 wall:</b> even saving $200k/yr at 5% returns takes ~21 years to go from $1M to $10M. Beyond L4, jobs stop working — <b>equity</b> in a business is the realistic path.</li>
+      <li><b>You can skip ahead:</b> higher-level strategies are available earlier — they just carry more risk (~25% of businesses fail in year 1; ~65% within 10 years).</li>
+      <li><b>Median household income by level:</b> L1 $32k · L2 $48k · L3 $83k · L4 $197k · L5 $724k · L6 $4.27M.</li>
+    </ul>
+  </div>
+
+  <div class="tab-panel" id="tab-invest">
+    <h3>Own things that <span>pay you</span></h3>
+    <p>The single sharpest dividing line in the asset data: Levels 1–3 hold assets that <i>cost</i> money; Levels 4–6 hold assets that <i>make</i> money.</p>
+    <ul>
+      <li><b>The accumulation pattern:</b> Cash/Vehicles → Home/Retirement → Stocks/Business ownership.</li>
+      <li><b>Income-producing share of assets:</b> ~20% or less in Levels 1–3 vs. 50%+ in Levels 4–6. If you copy one habit of the wealthy, make it the continual purchase of diverse income-producing assets (stocks, bonds, rental real estate, farmland, royalties, businesses).</li>
+      <li><b>Compounding is front-loaded:</b> in a 40-year, $10k/yr plan at 7%, the <b>first 10 years of contributions produce over half</b> of the final $2M portfolio. Start early; the marathon's last "stride" is 2.5 miles long.</li>
+      <li><b>Ownership ≠ results:</b> most people in L5–6 own businesses, but most business owners never reach L5–6 — survivorship bias cuts both ways.</li>
+      <li><b>Homeownership dominates the middle:</b> homeowners in L1–3 hold ~65–75% of assets in the house — central to the American Dream, but it's largely a consumption good.</li>
+    </ul>
+  </div>
+</section>
+<!-- ================= LEVERAGE ================= -->
+<section id="leverage">
+  <div class="sec-head">
+    <div class="eyebrow">Chapter 2 · via Naval Ravikant</div>
+    <h2>The four kinds of leverage</h2>
+    <p>Leverage divorces your time from your income — output per unit of input. Every path past Level 4 uses at least one of these.</p>
+  </div>
+  <div class="lev-grid">
+    <div class="lev-card">
+      <div class="lev-ico">👷</div>
+      <h3>Labor</h3>
+      <div class="lev-lv">Levels 3 → 6</div>
+      <p>Other people build for you; you keep the spread between the revenue they generate and the wages you pay. The oldest form of leverage.</p>
+      <div class="pros">+ Timeless, scales with headcount</div>
+      <div class="cons">− People are hard; leadership skill is the bottleneck</div>
+    </div>
+    <div class="lev-card">
+      <div class="lev-ico">💰</div>
+      <h3>Capital</h3>
+      <div class="lev-lv">Levels 3 → 6</div>
+      <p>Money multiplies skill — a market-beating edge worth $10k on your own $100k becomes $300k managing $10M of other people's money.</p>
+      <div class="pros">+ Fastest multiplier when it works</div>
+      <div class="cons">− Requires sales + emotional regulation; brutal on the downside</div>
+    </div>
+    <div class="lev-card">
+      <div class="lev-ico">✍️</div>
+      <h3>Content</h3>
+      <div class="lev-lv">Levels 2 → 4</div>
+      <p>Build once, sell twice. Permissionless and near-free to distribute since the internet — but usually needs another form of leverage stacked on top to reach L5+.</p>
+      <div class="pros">+ Zero gatekeepers, infinite copies</div>
+      <div class="cons">− Fierce competition; most content dies fast unless evergreen</div>
+    </div>
+    <div class="lev-card">
+      <div class="lev-ico">💻</div>
+      <h3>Code</h3>
+      <div class="lev-lv">Levels 3 → 5</div>
+      <p>Lines of text replicated millions of times. Permissionless like content, with even greater scalability — a salary ticket to L3–4, an equity ticket to L5.</p>
+      <div class="pros">+ Near-infinite scale</div>
+      <div class="cons">− Technical skill, endless maintenance, crowded market</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DATA ================= -->
+<section id="data">
+  <div class="sec-head">
+    <div class="eyebrow">Chapter 10 · SCF + PSID panel data</div>
+    <h2>How long does the climb take?</h2>
+    <p>The financial media sells wealthy-by-30. The data says otherwise: the median U.S. millionaire household is <b>62</b>. Time is the invisible ingredient.</p>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="ages">🎂 Who's at each level</button>
+    <button class="tab-btn" data-tab="mob10">🔀 Mobility · 10 yrs</button>
+    <button class="tab-btn" data-tab="mob20">🔀 Mobility · 20 yrs</button>
+    <button class="tab-btn" data-tab="odds">🎲 Your odds</button>
+  </div>
+
+  <div class="tab-panel active" id="tab-ages">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Level</th><th>Youngest 10%</th><th>Youngest 25%</th><th>Median age</th><th>Median income</th><th>Share of US households</th></tr></thead>
+      <tbody>
+        <tr><td><b>L1</b> &lt;$10k</td><td class="num">≤23</td><td class="num">≤30</td><td class="num">42</td><td class="num">$32,427</td><td class="num">18%</td></tr>
+        <tr><td><b>L2</b> $10k–$100k</td><td class="num">≤26</td><td class="num">≤32</td><td class="num">44</td><td class="num">$47,560</td><td class="num">21%</td></tr>
+        <tr><td><b>L3</b> $100k–$1M</td><td class="num">≤32</td><td class="num">≤40</td><td class="num">54</td><td class="num">$83,230</td><td class="num">43%</td></tr>
+        <tr><td><b>L4</b> $1M–$10M</td><td class="num">≤43</td><td class="num">≤51</td><td class="num">62</td><td class="num">$196,726</td><td class="num">16.3%</td></tr>
+        <tr><td><b>L5</b> $10M–$100M</td><td class="num">≤46</td><td class="num">≤56</td><td class="num">64</td><td class="num">$724,211</td><td class="num">1.69%</td></tr>
+        <tr><td><b>L6</b> $100M+</td><td class="num">≤50</td><td class="num">≤60</td><td class="num">66</td><td class="num">$4,266,359</td><td class="num">0.0075%</td></tr>
+      </tbody>
+    </table></div>
+    <p class="tbl-note">Fewer than 1 in 4 millionaire households are under 50. Only ~1% of households in their twenties are in Level 4 — versus ~1 in 4 households in their sixties. The exceptional bottom-1%-by-age of L4 is 30. (2022 Survey of Consumer Finances.)</p>
+  </div>
+
+  <div class="tab-panel" id="tab-mob10">
+    <p style="margin-bottom:14px">Where households starting in each level ended up <b>10 years later</b> (inflation-adjusted, PSID 1984–2021). Gold = up a level; green = stayed put.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Start ↓ / End →</th><th>L1</th><th>L2</th><th>L3</th><th>L4</th><th>L5</th></tr></thead>
+      <tbody>
+        <tr><td><b>L1</b></td><td class="num stay">46%</td><td class="num hi">30%</td><td class="num hi">22%</td><td class="num hi">2%</td><td class="num">—</td></tr>
+        <tr><td><b>L2</b></td><td class="num">17%</td><td class="num stay">38%</td><td class="num hi">44%</td><td class="num hi">1%</td><td class="num">—</td></tr>
+        <tr><td><b>L3</b></td><td class="num">2.9%</td><td class="num">7%</td><td class="num stay">72%</td><td class="num hi">18%</td><td class="num hi">0.1%</td></tr>
+        <tr><td><b>L4</b></td><td class="num">1%</td><td class="num">1%</td><td class="num">23%</td><td class="num stay">72%</td><td class="num hi">3%</td></tr>
+        <tr><td><b>L5</b></td><td class="num">—</td><td class="num">—</td><td class="num">4%</td><td class="num">41%</td><td class="num stay">55%</td></tr>
+      </tbody>
+    </table></div>
+    <p class="tbl-note">Most households stay put. The middle (L3–L4) is stickiest; the top has the most downward mobility — 41% of L5 households fell to L4 within a decade, usually via concentrated bets.</p>
+  </div>
+
+  <div class="tab-panel" id="tab-mob20">
+    <p style="margin-bottom:14px">Extend to <b>20 years</b> and upward mobility roughly doubles for the lower levels:</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Start ↓ / End →</th><th>L1</th><th>L2</th><th>L3</th><th>L4</th><th>L5</th></tr></thead>
+      <tbody>
+        <tr><td><b>L1</b></td><td class="num stay">34%</td><td class="num hi">26%</td><td class="num hi">37%</td><td class="num hi">3%</td><td class="num">—</td></tr>
+        <tr><td><b>L2</b></td><td class="num">12%</td><td class="num stay">28%</td><td class="num hi">55%</td><td class="num hi">5%</td><td class="num">—</td></tr>
+        <tr><td><b>L3</b></td><td class="num">3%</td><td class="num">7%</td><td class="num stay">61.8%</td><td class="num hi">28%</td><td class="num hi">0.2%</td></tr>
+        <tr><td><b>L4</b></td><td class="num">1%</td><td class="num">2%</td><td class="num">25%</td><td class="num stay">64%</td><td class="num hi">8%</td></tr>
+        <tr><td><b>L5</b></td><td class="num">—</td><td class="num">—</td><td class="num">10%</td><td class="num">54%</td><td class="num stay">36%</td></tr>
+      </tbody>
+    </table></div>
+    <p class="tbl-note">Average inflation-adjusted wealth gain per 20-year jump: L1→L2 ≈ +$52k · L2→L3 ≈ +$273k · L3→L4 ≈ +$1.67M. Even households that stayed put still built wealth (L4 stayers averaged ≈ +$1.1M).</p>
+  </div>
+
+  <div class="tab-panel" id="tab-odds">
+    <h3>Ignore the starting rung — <span>what happens to anyone?</span></h3>
+    <div class="table-wrap" style="margin-top:14px"><table>
+      <thead><tr><th>Wealth-level change</th><th>Over 10 years</th><th>Over 20 years</th></tr></thead>
+      <tbody>
+        <tr><td>⬇⬇ Down 2 levels</td><td class="num">2%</td><td class="num">2%</td></tr>
+        <tr><td>⬇ Down 1 level</td><td class="num">11%</td><td class="num">10%</td></tr>
+        <tr><td>◼ No change</td><td class="num stay">63%</td><td class="num stay">51%</td></tr>
+        <tr><td>⬆ Up 1 level</td><td class="num hi">21%</td><td class="num hi">32%</td></tr>
+        <tr><td>⬆⬆ Up 2 levels</td><td class="num hi">3%</td><td class="num hi">5%</td></tr>
+      </tbody>
+    </table></div>
+    <p class="tbl-note">There's a persistent tilt toward climbing rather than falling — patience is a strategy. (Echoed globally: extreme poverty fell from 36% of humanity in 1990 to 10% by 2015.) The point of the rat-hope experiment that opens the chapter: knowing progress is possible keeps you swimming.</p>
+  </div>
+</section>
+<!-- ================= HAPPINESS ================= -->
+<section id="happiness">
+  <div class="sec-head">
+    <div class="eyebrow">Part III · Finding Your Summit</div>
+    <h2>Does money buy happiness?</h2>
+    <p>Yes — with an asterisk. The famous Kahneman–Deaton "$75k plateau" was really measuring <i>unhappiness</i>, not happiness. Killingsworth's later work (and their joint 2023 resolution) showed well-being keeps rising with income — except for the least happy ~15% of people, for whom money stops helping past a comfortable floor.</p>
+  </div>
+
+  <div class="verdict">
+    <h3>The resolved verdict</h3>
+    <div class="verdict-row">
+      <div><b>If you're poor…</b><p>more money will very likely make you happier. Escaping Level 1 is the single biggest happiness upgrade money can deliver.</p></div>
+      <div><b>If you're already happy…</b><p>more money tends to make you even happier — largely through what it lets you do (time saved, help given, experiences shared).</p></div>
+      <div><b>If you're unhappy but not poor…</b><p>more money won't fix it. No income level cures unhappiness — the relationship is logarithmic and habituation resets the target ("the never-ending then").</p></div>
+    </div>
+  </div>
+
+  <div class="sec-head" style="margin-top:34px">
+    <h2 style="font-size:clamp(22px,3vw,32px)">Money is salt — the great enhancer</h2>
+    <p>It intensifies the life you already have; it can't season an empty plate. Financial wealth is a <b>multiplier</b> of four other kinds of wealth — and anything × 0 = 0.</p>
+  </div>
+  <div class="hap-grid">
+    <div class="hap-card"><h4>🤝 Social wealth</h4><p>Friendship quality is the best single predictor of health and survival after a heart attack — comparable to quitting smoking. ~4 close friends is the plateau. Seeing a friend most days ≈ a $100k/yr raise in well-being; marriage ≈ another $100k. Also: real wealth is never having to spend time with jerks.</p></div>
+    <div class="hap-card"><h4>🧠 Mental wealth</h4><p>Purpose, stress management, self-esteem. Meaningful work beats idle leisure — the unhappiest people are often the purposeless rich. Chronic stress is the enemy; status is relative to the game <i>you</i> choose to play, so pick your scoreboard deliberately.</p></div>
+    <div class="hap-card"><h4>💪 Physical wealth</h4><p>Worth ≈ $400k/yr in equivalent well-being — 4× any other factor studied. Four pillars: sleep, nutrition, strength, cardio. A top-2.5% VO₂ max for your age ≈ 80% lower all-cause mortality; even climbing from bottom-25% to slightly-above-average halves your risk.</p></div>
+    <div class="hap-card"><h4>⏳ Time wealth</h4><p>The only wealth you can never get more of. It's not free hours that matter but hours spent on things you value — one purposeful hour beats ten idle ones. Sudden, structureless free time (bad retirements) feels like "falling into space."</p></div>
+  </div>
+
+  <div class="take-grid" style="margin-top:26px">
+    <div class="take"><b>The downsides climb with you</b><p>Levels 5–6 amplify non-financial risk: loss of trust (are they here for me or the money?), inverted-U stress, spoiled-or-pressured kids, divorce (13 divorces among the 10 richest men), lawsuits, and relative deprivation — there's always someone richer, and the gaps widen at the top.</p></div>
+    <div class="take"><b>The Buffett rule for kids</b><p>Leave children enough to do anything, not enough to do nothing. The combination that damages affluent kids is isolation + achievement pressure — support without dependency is the balance to strike.</p></div>
+    <div class="take"><b>Wealthy vs. feeling wealthy</b><p>A wealthy life is a feeling, not a number. $10M feeling like "not enough" is poorer than $100k feeling like plenty. Rockefeller's "enough"? "Just a little bit more" — a target that moves forever unless you stop it.</p></div>
+    <div class="take"><b>The author's own climb</b><p>Working-class kid → Stanford (luck + a 3-minute wait for a professor) → grinding skills in his 20s → blog side hustle (content leverage) + day job → Level 4 at 34. His lesson: luck opens doors, but strategy decides which ones you walk through — and past "enough," the free things matter most.</p></div>
+  </div>
+</section>
+
+<!-- ================= ACTIONS ================= -->
+<section id="actions">
+  <div class="sec-head">
+    <div class="eyebrow">Your Playbook</div>
+    <h2>Action plan by level</h2>
+    <p>Check items off as you go (progress lives only on this page while it's open). Focus word per level, from the epilogue: <b>safety → education → investing → start a business → scale a business → protect wealth</b>.</p>
+  </div>
+  <div class="check-wrap">
+    <div class="progress-label"><span id="prog-txt">0 of 24 actions checked</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+    <div id="check-groups"></div>
+  </div>
+</section>
+
+<!-- ================= TAKEAWAYS ================= -->
+<section id="takeaways">
+  <div class="sec-head">
+    <div class="eyebrow">If you remember nothing else</div>
+    <h2>Ten takeaways</h2>
+  </div>
+  <div class="take-grid">
+    <div class="take"><b>1 · Strategy beats effort</b><p>"So many people working so hard and achieving so little" — the problem is usually the approach, not the work ethic. The right move depends on your level, like chess moves depend on the position.</p></div>
+    <div class="take"><b>2 · Wealth rises in steps of 10×</b><p>Six levels, each unlocking a new freedom: groceries → restaurants → travel → house → impact. Contradictory financial advice is usually correct advice aimed at different levels.</p></div>
+    <div class="take"><b>3 · Spend by wealth, not income</b><p>Income is fickle; wealth proves discipline. Use the 0.01% Rule for trivial decisions and liquid net worth to be safe.</p></div>
+    <div class="take"><b>4 · Income builds wealth</b><p>The strongest relationship in personal finance. Cutting spending has a floor; raising income doesn't. In Level 1 there's usually nothing left to cut anyway.</p></div>
+    <div class="take"><b>5 · Buy assets that pay you</b><p>Income-producing assets are the clearest dividing line between L1–3 (≤20% of assets) and L4–6 (50%+). Just keep buying — and start early: the first decade of contributions does half the work.</p></div>
+    <div class="take"><b>6 · Level 4 is a wall — equity is the door</b><p>No salary realistically compounds you from $1M to $10M in a career. Business ownership (a lot of a small one, or a little of a big one) is how nearly everyone gets to L5–6.</p></div>
+    <div class="take"><b>7 · Concentration builds, diversification keeps</b><p>The fastest falls (41% of L5 households drop a level per decade) come from concentrated bets. What got you up the ladder is exactly what can take you down it.</p></div>
+    <div class="take"><b>8 · Respect the clock</b><p>Median millionaire age: 62. Expect a level per decade or two, not per year. Patience isn't passivity — it's the price of compounding.</p></div>
+    <div class="take"><b>9 · Money's problems shrink as it grows</b><p>Each level up, money solves fewer of your remaining problems. What gets amplified instead: luck (L1), career (L2), investments (L3–4), relationships (L5–6).</p></div>
+    <div class="take"><b>10 · Know your summit</b><p>Legacy = Action × Wealth. More isn't always better — decide what "enough" means before the moving yardstick decides for you, and salt a life worth seasoning.</p></div>
+  </div>
+</section>
+
+<footer>
+  <b>The Wealth Ladder: Proven Strategies for Every Step of Your Financial Life</b> · Nick Maggiulli (author of <i>Just Keep Buying</i>)<br>
+  Interactive summary for personal study. Figures cited from the book's analysis of the Survey of Consumer Finances (2022) and Panel Study of Income Dynamics (1984–2021). Not financial advice.
+  <div class="mantra-strip">
+    <span>L1 · Atypical results require atypical actions</span>
+    <span>L2 · Learn today, earn forever</span>
+    <span>L3 · Just keep buying</span>
+    <span>L4 · What got you here won't get you there</span>
+    <span>L5 · Only the paranoid survive</span>
+    <span>L6 · Legacy = Action × Wealth</span>
+  </div>
+  <div class="counter" id="visit-counter" title="Aggregate page views — no personal data collected">
+    <span class="dot"></span>
+    <div><b id="views-total">—</b><div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase">total views</div></div>
+    <div class="sep"></div>
+    <div><b id="views-today">—</b><div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase">today</div></div>
+  </div>
+</footer>
+<script>
+/* ---------- DATA ---------- */
+const LEVELS = [
+ {n:1, name:"Paycheck-to-paycheck", range:"< $10k", lo:-Infinity, hi:1e4,
+  mantra:"“Atypical results require atypical actions”",
+  income:"$32,427", age:"42", share:"18% of US · 39.5% of world", assets:"Cash & vehicles (~85% of assets)",
+  trivial:"$0.01 – $0.99", one:"Hourly jobs: $10 – $100",
+  focus:"Safety — build a buffer against amplified bad luck.",
+  reality:"Opportunity is scarce and bad luck is amplified: one health shock or job loss can spiral (illness contributes to ~44% of US personal bankruptcies; <10% of people account for over half of all financial-distress events). The bottom 20% of earners spend over 100% of after-tax income on necessities — so \"cut spending\" is mostly useless advice here. The real problem is income.",
+  plays:["Get any job and outwork everyone — visibility earns skill-building opportunities.","Build marketable skills without spending money (work for free for experience; cheap or free education only).","Stop digging: reduce high-interest debt first; you don't need zero debt to exit, just a shrinking hole.","Lean on relationships — the overlooked wealth of Level 1 — and be ready to reciprocate.","Build a small cash emergency buffer to blunt bad luck."],
+  risks:"Credit-card debt (Buffett: nobody progresses borrowing at 18–20%), student loans without an income payoff, big liabilities, health shocks."},
+ {n:2, name:"Grocery freedom", range:"$10k – $100k", lo:1e4, hi:1e5,
+  mantra:"“Learn today, earn forever”",
+  income:"$47,560", age:"44", share:"21% of US · 43% of world", assets:"Vehicles & primary residence",
+  trivial:"$1 – $9", one:"High-skilled work: $100 – $1,000",
+  focus:"Education & career trajectory — the sweet spot for investing in yourself.",
+  reality:"This is the level where education pays best: you can afford some risk, and the payoff compounds for decades (median income: $53k for high-school households vs ~$118k for college households). Your education is an asset nobody can take from you. The financial sin of Level 2 is the invisible mistake — the career you're NOT pursuing.",
+  plays:["Find the intersection of what you're good at + interested in + what people pay for (aim for 2 of 3; start with what pays).","Buy skills: night classes, trade school, bootcamps, on-the-job learning — the degree premium holds at every level.","Audit for dead-end-job symptoms: no new skills, no promotion path, no new responsibility, flat pay → move.","Front-load effort: career compounding works like interest — hard work early pays for the rest of your life (the Sam Altman principle)."],
+  risks:"Dead-end jobs, ignoring opportunity costs, overpaying for credentials that don't raise income."},
+ {n:3, name:"Restaurant freedom", range:"$100k – $1M", lo:1e5, hi:1e6,
+  mantra:"“Just keep buying”",
+  income:"$83,230", age:"54", share:"43% of US households (the modal level)", assets:"Primary residence & retirement accounts",
+  trivial:"$10 – $99", one:"Promotions & side hustles: $1k – $10k",
+  focus:"Investing — this is where portfolio decisions start to transform your future.",
+  reality:"Compounding is front-loaded (first 10 years of contributions ≈ half the final portfolio), and bigger balances beat bigger returns: 2% on $100k > 10% on $10k. Households that jumped to L4 in a decade started with 52% higher incomes and grew them faster. The way down is overspending — fallers earned ~$25k less than stayers but spent nearly the same. 90% of L3 households own homes, often 65% of their assets.",
+  plays:["Continuously buy diverse income-producing assets — stocks, bonds, rentals, farmland, royalties, businesses. No single right answer, only trade-offs.","Add income streams: side hustles (a bridge-driving service and a waterskiing squirrel both built six-figure businesses).","Grow income aggressively — it's the #1 statistical difference between climbers and stayers.","Don't overbuy the house or car; big-ticket overspending is the classic way to slide back."],
+  risks:"Overspending on big-ticket items; treating the home as an investment when it's mostly consumption."},
+ {n:4, name:"Travel freedom", range:"$1M – $10M", lo:1e6, hi:1e7,
+  mantra:"“What got you here won't get you there”",
+  income:"$196,726", age:"62 (median millionaire!)", share:"16.3% of US households", assets:"Home, retirement, stocks (53% income-producing)",
+  trivial:"$100 – $999", one:"Career pivots / start a business: $10k – $100k",
+  focus:"Decide: contented plateau, or business equity.",
+  reality:"The hardest level to escape: 64% are still here 20 years later; only 8% reach L5. The math is brutal — save $200k/yr at 5% and it still takes ~21 years to reach $10M. Investment mistakes are now amplified (a 10% loss is six figures), and concentration is the killer. Success in a career got you in; only equity gets you out — unless you choose (legitimately!) to enjoy the view.",
+  plays:["Diversify properly — ten oil stocks isn't diversification. Sector/geography concentration unravels on one unlucky break.","Shift attention from saving to managing investments: a $2M portfolio at 5% out-earns most salaries' savings.","To climb: acquire equity — a lot of a small business or a little of a large one. Prior industry experience more than doubles exit odds; peak founder success comes in the 40s–50s.","Beware the business-that's-really-a-job: if it can't run without you, nobody will buy it.","Or: accept Level 4 and optimize for life — a valid, explicitly endorsed choice."],
+  risks:"Speculative concentrated bets, starting a job-in-disguise, grinding a demanding career into your 70s chasing L5."},
+ {n:5, name:"House freedom", range:"$10M – $100M", lo:1e7, hi:1e8,
+  mantra:"“Only the paranoid survive”",
+  income:"$724,211", age:"64", share:"~1.7% of US households", assets:"Business interests (~31%), stocks, retirement",
+  trivial:"$1,000 – $9,999", one:"Scale a business: $100k – $1M",
+  focus:"Scale or sell — then defend.",
+  reality:"Most L5 wealth came from business ownership (63% of very-high-discretionary-income households). Serial founders win: each prior exit correlates with 52% higher revenues at the next venture; ~80% of unicorns had a previously-founded cofounder. Bigger firms also fetch premium valuation multiples. But 41% of L5 households fall a level within a decade — concentration got you here; diversification keeps you here. And 99% of life's purchasable experiences are already affordable: seriously ask whether the last 1% is worth the climb.",
+  plays:["Choose deliberately: scale the business, sell and start fresh, or stop climbing.","If a hefty offer arrives, take it seriously — regret skews heavily toward those who didn't sell.","De-risk after liquidity: diversify, get umbrella insurance, tighten personal liabilities.","Hire the expert bench (tax, estate, investment) — mistakes now cost 10× per level, and good advice pays for itself.","Guard the human side: trust, stress (the wealth–mental-health curve is an inverted U), and family dynamics all get amplified."],
+  risks:"Concentrated holdings, lifestyle creep (dream homes have five-figure upkeep), taxes, lawsuits, spoiling or pressuring kids, Huguette-Clark-style isolation."},
+ {n:6, name:"Impact freedom", range:"$100M+", lo:1e8, hi:Infinity,
+  mantra:"“Legacy = Action × Wealth”",
+  income:"$4,266,359", age:"66", share:"~10,000 US households · ~30,000 adults worldwide", assets:"Business interests & stocks",
+  trivial:"$10,000+", one:"Build an enterprise: $1M+",
+  focus:"Protect what you have; define your legacy.",
+  reality:"More money should be the least of your concerns — beyond a jet, a megayacht, and extra homes, $1B buys little that $100M can't. The threats are now mostly non-financial: divorce (the single most expensive decision-gone-wrong), lawsuits (settle-bait scales with visibility), and warped motivation via relative deprivation — even Charlie Munger, weeks before his death, lamented not making trillions. The Nobel lesson: a mistaken obituary made him redesign his legacy.",
+  plays:["Build the full defense: expert team, estate structures, insurance, privacy, clean behavior.","Invest in the marriage/partnership — know what you want and say it (the divorce-lawyer's two failure causes).","Anchor identity outside the number: enjoy money without becoming it.","Direct wealth at a problem you care about — action is the variable you control; money only multiplies it (see: one man hand-planting a 1,300-acre forest with no fortune at all)."],
+  risks:"Divorce, lawsuits, changed motivations, undue risk-taking to \"catch up\" with richer peers."}
+];
+
+/* ---------- LADDER ---------- */
+const rungBox = document.getElementById('ladder-rungs');
+const card = document.getElementById('level-card');
+let activeLevel = 3, youLevel = null;
+
+LEVELS.forEach(l=>{
+  const b=document.createElement('button');
+  b.className='rung'; b.dataset.level=l.n; b.setAttribute('role','tab');
+  b.innerHTML=`<div class="r-num">${l.n}</div><div><div class="r-name">${l.name}</div><div class="r-range">${l.range}</div></div>`;
+  b.addEventListener('click',()=>setLevel(l.n));
+  rungBox.appendChild(b);
+});
+
+function setLevel(n){
+  activeLevel=n;
+  document.querySelectorAll('.rung').forEach(r=>{
+    r.classList.toggle('active', +r.dataset.level===n);
+    r.classList.toggle('you', youLevel===+r.dataset.level);
+    r.setAttribute('aria-selected', +r.dataset.level===n);
+  });
+  const l=LEVELS[n-1];
+  card.innerHTML=`
+    <div class="lc-top">
+      <div class="lc-title">Level ${l.n} · <span>${l.name}</span></div>
+      <div class="lc-range">${l.range}</div>
+    </div>
+    <div class="lc-mantra">${l.mantra}</div>
+    <div class="lc-grid">
+      <div class="lc-stat"><div class="k">Median income</div><div class="v">${l.income}</div></div>
+      <div class="lc-stat"><div class="k">Median age</div><div class="v">${l.age}</div></div>
+      <div class="lc-stat"><div class="k">Trivial spend</div><div class="v">${l.trivial}</div></div>
+      <div class="lc-stat"><div class="k">Population</div><div class="v" style="font-size:13px;line-height:1.35;padding-top:4px">${l.share}</div></div>
+    </div>
+    <div class="lc-body">
+      <h4>Single focus</h4><p>${l.focus}</p>
+      <h4>What life is like here</h4><p>${l.reality}</p>
+      <h4>The playbook</h4><ul>${l.plays.map(p=>`<li>${p}</li>`).join('')}</ul>
+      <h4>What takes people down</h4><p>${l.risks}</p>
+      <h4>Typical assets · Worthwhile income moves (1% rule)</h4>
+      <p>${l.assets} &nbsp;·&nbsp; ${l.one}</p>
+    </div>`;
+}
+setLevel(3);
+
+/* ---------- FINDER ---------- */
+const nw=document.getElementById('nw');
+const fmt=n=>'$'+n.toLocaleString('en-US',{maximumFractionDigits:0});
+const fmt2=n=>'$'+n.toLocaleString('en-US',{maximumFractionDigits:2});
+nw.addEventListener('input',()=>{
+  const raw=nw.value.replace(/[^0-9.\-]/g,'');
+  const v=parseFloat(raw);
+  const out=document.getElementById('finder-out');
+  if(isNaN(v)){out.classList.remove('show');youLevel=null;setLevel(activeLevel);
+    document.getElementById('live-trivial').textContent='enter net worth above ↑';
+    document.getElementById('live-one').textContent='enter net worth above ↑';return;}
+  const l=LEVELS.find(L=>v>=L.lo&&v<L.hi)||LEVELS[0];
+  youLevel=l.n;
+  out.classList.add('show');
+  document.getElementById('fr-level').innerHTML=`Level ${l.n} — <span>${l.name}</span>`;
+  document.getElementById('fr-desc').textContent=`Mantra for this level: ${l.mantra.replace(/“|”/g,'"')} · Focus: ${l.focus}`;
+  const trivial=Math.max(v,0)*0.0001, onep=Math.max(v,0)*0.01;
+  document.getElementById('fr-trivial').textContent=trivial<1?fmt2(trivial):'~'+fmt(trivial);
+  document.getElementById('fr-one').textContent='≥ '+fmt(onep);
+  document.getElementById('fr-inc').textContent=l.income;
+  document.getElementById('live-trivial').textContent=(trivial<1?fmt2(trivial):'~'+fmt(trivial))+' per decision · ~'+(trivial<1?fmt2(trivial):fmt(trivial))+'/day above income';
+  document.getElementById('live-one').textContent='≥ '+fmt(onep)+' added to net worth';
+  setLevel(l.n);
+});
+
+/* ---------- TABS ---------- */
+document.querySelectorAll('.tabs').forEach(tabs=>{
+  const btns=tabs.querySelectorAll('.tab-btn');
+  btns.forEach(btn=>btn.addEventListener('click',()=>{
+    btns.forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const section=tabs.parentElement;
+    section.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    section.querySelector('#tab-'+btn.dataset.tab).classList.add('active');
+  }));
+});
+
+/* ---------- VISIT COUNTER ----------
+   Uses the free api.counterapi.dev keyed counter (no account, no cookies,
+   aggregate totals only — no personal data). Change NAMESPACE to fork your
+   own counter / reset. Fails silently if the service is unreachable. */
+(function(){
+  const NAMESPACE = 'wealth-ladder-summary';   // change to your own unique string
+  const totalEl = document.getElementById('views-total');
+  const todayEl = document.getElementById('views-today');
+  const nf = new Intl.NumberFormat('en-US');
+  const today = new Date().toISOString().slice(0,10).replace(/-/g,''); // yyyymmdd
+
+  function hit(counter){
+    return fetch(`https://api.counterapi.dev/v1/${NAMESPACE}/${counter}/up`)
+      .then(r=>{if(!r.ok)throw 0;return r.json();})
+      .then(d=>d.count);
+  }
+
+  Promise.all([hit('total'), hit('day-'+today)])
+    .then(([total, day])=>{
+      totalEl.textContent = nf.format(total);
+      todayEl.textContent = nf.format(day);
+    })
+    .catch(()=>{
+      const c = document.getElementById('visit-counter');
+      if(c) c.style.display='none';
+    });
+})();
+
+/* ---------- CHECKLIST ---------- */
+const ACTIONS=[
+ {t:"Level 1 · Safety", items:[
+  "List everything you spend time and money on this week — find one hour and one expense to redirect",
+  "Stop adding new high-interest debt this month",
+  "Start a starter emergency fund, however small",
+  "Pick one marketable skill you can build for free, and ask someone for help or work-for-experience"]},
+ {t:"Level 2 · Education", items:[
+  "Write down: what you're good at, what interests you, what people pay for — find the overlap",
+  "Run the dead-end-job test (new skills? promotion path? new responsibility? rising pay?)",
+  "Price one concrete education option (course, cert, bootcamp, degree) against its income payoff",
+  "Front-load one career-compounding effort this quarter (visible project, new network, harder role)"]},
+ {t:"Level 3 · Investing", items:[
+  "Automate regular purchases of diverse income-producing assets",
+  "Compute your income-producing share of assets — push it toward 50%+ over time",
+  "Launch or test one additional income stream / side hustle",
+  "Stress-test the big-ticket items: is the house or car quietly capping your savings rate?"]},
+ {t:"Level 4 · Start (or settle, happily)", items:[
+  "Audit concentration: any sector, city, or single asset that could sink 6 figures at once?",
+  "Shift attention: is portfolio management getting the focus your paycheck used to?",
+  "Decide explicitly: contented Level 4, or pursue equity — write the decision down",
+  "If pursuing: pick an equity route where you have real industry experience"]},
+ {t:"Level 5 · Scale & defend", items:[
+  "Choose: scale, sell, or stop — and know why",
+  "De-risk after any liquidity event: diversify, umbrella insurance, liability sweep",
+  "Assemble the expert bench: tax, estate, investment — no single decision should be able to ruin you",
+  "Schedule the hard family-money conversations before they schedule themselves"]},
+ {t:"Level 6 · Protect & give", items:[
+  "Invest in the partnership: know what you want, and say it",
+  "Put the estate structures in place now, not later",
+  "Name the one problem your wealth should help solve — Legacy = Action × Wealth",
+  "Audit motivations: are you climbing from purpose, or from relative deprivation?"]}
+];
+const cg=document.getElementById('check-groups');
+let total=0;
+ACTIONS.forEach((g,gi)=>{
+  const d=document.createElement('details');
+  d.className='check-group'; if(gi===0)d.open=true;
+  d.innerHTML=`<summary>${g.t}<span class="cg-badge" id="badge-${gi}">0/${g.items.length}</span><span class="chev">›</span></summary>`;
+  g.items.forEach((it,ii)=>{
+    total++;
+    const row=document.createElement('div');row.className='check-item';
+    row.innerHTML=`<input type="checkbox" id="c-${gi}-${ii}" data-g="${gi}"><label for="c-${gi}-${ii}">${it}</label>`;
+    d.appendChild(row);
+  });
+  cg.appendChild(d);
+});
+document.getElementById('prog-txt').textContent=`0 of ${total} actions checked`;
+cg.addEventListener('change',()=>{
+  const boxes=[...cg.querySelectorAll('input[type=checkbox]')];
+  const done=boxes.filter(b=>b.checked).length;
+  document.getElementById('prog-fill').style.width=(done/total*100)+'%';
+  document.getElementById('prog-txt').textContent=`${done} of ${total} actions checked`;
+  ACTIONS.forEach((g,gi)=>{
+    const gb=boxes.filter(b=>+b.dataset.g===gi);
+    document.getElementById('badge-'+gi).textContent=gb.filter(b=>b.checked).length+'/'+gb.length;
+  });
+});
+</script>
+</body>
+</html>
